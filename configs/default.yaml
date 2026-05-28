@@ -1,0 +1,39 @@
+project:
+  # 项目名称，只用于日志、提示词和调试输出
+  name: "miniClaudeCode"
+
+  # Agent 默认工作的目录："." 表示当前启动命令所在目录
+  workspace: "."
+
+  # 文件读写默认编码
+  encoding: "utf-8"
+
+agent:
+  # Agent 单次任务最多循环多少轮，防止无限工具调用
+  max_turns: 30
+
+  # 是否启用流式输出
+  stream: true
+
+  # 是否自动执行工具
+  # 第一阶段建议 false 或交给 permission.yaml 控制
+  auto_run: false
+
+  # 是否保存会话历史
+  save_history: true
+
+context:
+  # 最多保留多少条历史消息
+  max_history_messages: 50
+
+  # 是否在 prompt 中加入项目上下文
+  include_project_context: true
+
+  # 是否读取项目中的 CLAUDE.md
+  include_claude_md: true
+
+  # 项目结构预览最多显示多少个文件
+  max_project_files_preview: 100
+
+  # 后期用于上下文压缩，第一阶段可以先不启用
+  enable_compaction: false

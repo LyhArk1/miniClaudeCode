@@ -1,0 +1,66 @@
+# 当前权限模式
+# default      默认模式
+# ask          写文件、bash 等高风险操作询问用户
+# plan         只读规划模式，不允许修改
+# accept_edits 自动接受文件编辑，但 bash 仍然询问
+mode: "default"
+
+# 是否允许只读工具直接运行
+allow_read_only: true
+
+# 是否允许文件写入类工具
+allow_file_write: true
+
+# 是否允许 bash 工具
+allow_bash: true
+
+require_confirmation:
+  # 创建或覆盖文件前是否确认
+  file_write: true
+
+  # 编辑文件前是否确认
+  file_edit: true
+
+  # 执行 bash 命令前是否确认
+  bash: true
+
+  # git 工具是否需要确认
+  # 第一阶段可以 false，因为 git status / diff / log 通常是只读的
+  git: false
+
+# 危险命令黑名单：命中这些内容时，不询问，直接拒绝
+deny_patterns:
+  - "rm -rf /"
+  - "sudo rm"
+  - "mkfs"
+  - "shutdown"
+  - "reboot"
+  - ":(){ :|:& };:"
+  - "chmod -R 777 /"
+  - "chown -R"
+  - "del /f /s /q C:\\"
+  - "format C:"
+
+# 受保护路径
+protected_paths:
+  - "/"
+  - "/etc"
+  - "/usr"
+  - "/bin"
+  - "/sbin"
+  - "/System"
+  - "C:\\Windows"
+  - "C:\\Program Files"
+
+plan_mode:
+  # PLAN 模式下允许读取文件
+  allow_read: true
+
+  # PLAN 模式下允许搜索
+  allow_search: true
+
+  # PLAN 模式下禁止写文件
+  allow_write: false
+
+  # PLAN 模式下禁止执行命令
+  allow_bash: false

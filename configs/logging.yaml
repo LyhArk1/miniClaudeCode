@@ -1,0 +1,25 @@
+# 日志等级：
+# debug   最详细，适合开发调试
+# info    普通运行信息
+# warning 警告
+# error   错误
+level: "info"
+
+# 是否使用 rich 美化终端输出
+use_rich: true
+
+# 是否启用 rich traceback
+rich_traceback: true
+
+# 日志里是否显示时间
+show_time: true
+
+# 日志里是否显示源码路径
+show_path: false
+
+log_file:
+  # 第一阶段建议 false，只在终端输出
+  enabled: false
+
+  # 后期如果需要保存日志，可以打开
+  path: "logs/miniclaude.log"

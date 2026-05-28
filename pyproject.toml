@@ -1,0 +1,23 @@
+[project]
+name = "miniclaudecode"
+version = "0.1.0"
+description = "A lightweight Claude Code style coding agent."
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.0.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0.0",
+    "python-dotenv>=1.0.0",
+    "openai>=1.0.0",
+]
+
+[project.scripts]
+miniclaude = "miniclaudecode.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"

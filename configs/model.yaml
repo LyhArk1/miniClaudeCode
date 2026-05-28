@@ -1,0 +1,23 @@
+provider: "openai"
+
+model: "gpt-4o-mini"
+
+base_url: "https://api.openai-proxy.org/v1"
+
+api_key_env: "OPENAI_API_KEY"
+
+generation:
+  temperature: 0.2
+
+  # 单次最大输出 token
+  max_tokens: 4096
+
+  # 采样参数，一般保持 1.0
+  top_p: 1.0
+
+timeout:
+  # 单次请求超时时间，单位秒
+  request_timeout: 60
+
+  # 请求失败后最多重试次数
+  max_retries: 2

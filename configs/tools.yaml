@@ -1,0 +1,49 @@
+file:
+  # 读取文件
+  read_file: true
+
+  # 写入文件
+  write_file: true
+
+  # 局部编辑文件
+  edit_file: true
+
+  # 查看目录
+  list_dir: true
+
+search:
+  # 按文件名模式搜索，例如 **/*.py
+  glob: true
+
+  # 按内容搜索
+  grep: true
+
+  # LSP 语义搜索，后期再做
+  lsp: false
+
+  # 工具很多时再做 ToolSearch
+  tool_search: false
+
+execution:
+  # 执行 shell 命令
+  bash: true
+
+  # git status / diff / log 等
+  git: true
+
+  # 子 Agent 工具，后期再做
+  agent_tool: false
+
+external:
+  # 网页抓取，后期再做
+  web_fetch: false
+
+  # 联网搜索，后期再做
+  web_search: false
+
+  # MCP 工具集成，后期再做
+  mcp: false
+
+notebook:
+  # Jupyter Notebook 编辑，后期再做
+  notebook_edit: false
