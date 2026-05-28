@@ -3,12 +3,19 @@
 
 本模块负责根据 configs/logging.yaml 初始化项目日志系统。
 
-解决三个问题：
+它主要解决三个问题：
 
 1. 统一日志格式；
 2. 根据配置文件控制日志等级；
 3. 后续所有模块都通过 get_logger() 获取日志对象。
 
+注意：
+这个模块只负责“日志系统本身”，不负责读取 yaml。
+yaml 的读取由 services/config.py 完成。
+
+当前规则：
+    logger.py 不再给 logging 配置提供默认值。
+    所有默认值都必须写在 configs/logging.yaml 中。
 """
 
 from __future__ import annotations
@@ -17,14 +24,14 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from miniclaudecode.services.config import AppConfig
+from miniclaudecode.services.config import AppConfig, ConfigError
 
 
 # 项目根日志名称
 LOGGER_NAME = "miniclaudecode"
 
 
-def _to_log_level(level: str | None) -> int:
+def _to_log_level(level: str) -> int:
     """
     将字符串日志等级转换成 logging 模块需要的整数等级。
 
@@ -32,10 +39,9 @@ def _to_log_level(level: str | None) -> int:
         "debug"   -> logging.DEBUG
         "info"    -> logging.INFO
         "warning" -> logging.WARNING
-    """
 
-    if level is None:
-        return logging.INFO
+    如果配置中写了未知等级，则直接抛出 ConfigError。
+    """
 
     level = level.lower().strip()
 
@@ -47,7 +53,10 @@ def _to_log_level(level: str | None) -> int:
         "critical": logging.CRITICAL,
     }
 
-    return mapping.get(level, logging.INFO)
+    if level not in mapping:
+        raise ConfigError(f"不支持的日志等级：{level}")
+
+    return mapping[level]
 
 
 def _clear_handlers(logger: logging.Logger) -> None:
@@ -105,15 +114,17 @@ def setup_logger(config: AppConfig) -> logging.Logger:
         项目根 logger。
     """
 
-    # 从 logging.yaml 中读取配置
-    level_text = config.get("logging.level", "info")
-    use_rich = bool(config.get("logging.use_rich", True))
-    rich_traceback = bool(config.get("logging.rich_traceback", True))
-    show_time = bool(config.get("logging.show_time", True))
-    show_path = bool(config.get("logging.show_path", False))
+    # 从 logging.yaml 中读取配置。
+    # 注意：这里不再写任何默认值。
+    # 如果配置项缺失，config.get() 会直接抛出 ConfigError。
+    level_text = config.get("logging.level")
+    use_rich = bool(config.get("logging.use_rich"))
+    rich_traceback = bool(config.get("logging.rich_traceback"))
+    show_time = bool(config.get("logging.show_time"))
+    show_path = bool(config.get("logging.show_path"))
 
-    log_file_enabled = bool(config.get("logging.log_file.enabled", False))
-    log_file_path = config.get("logging.log_file.path", "logs/miniclaude.log")
+    log_file_enabled = bool(config.get("logging.log_file.enabled"))
+    log_file_path = config.get("logging.log_file.path")
 
     log_level = _to_log_level(level_text)
 
@@ -229,6 +240,7 @@ def log_config_summary(logger: logging.Logger, summary: dict[str, Any]) -> None:
     打印配置摘要。
 
     这个函数主要用于开发阶段调试。
+    注意：summary 中不应该包含真实 API Key。
     """
 
     logger.info("当前配置摘要：")
