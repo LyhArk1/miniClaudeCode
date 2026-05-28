@@ -44,79 +44,58 @@ class AppConfig:
 
     config_dir:
         configs/ 目录路径。
+
+    设计原则：
+        只保留一个配置读取方法 get()。
+
+        所有默认值都应该写在 yaml 文件中，而不是写在 Python 代码中。
+        因此 get() 是严格读取：配置项不存在就报错。
     """
 
     data: dict[str, Any]
     project_root: Path
     config_dir: Path
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str) -> Any:
         """
-        按点号路径读取配置。
+        按点号路径读取配置项。
 
         示例：
+            config.get("project.name")
             config.get("model.model")
             config.get("permission.mode")
-            config.get("tools.file.read_file")
+            config.get("tools.execution.bash")
+            config.get("logging.level")
 
-        如果路径不存在，则返回 default。
+        规则：
+            1. 配置项存在，则返回对应值；
+            2. 配置项不存在，则抛出 ConfigError；
+            3. 配置项存在但值为 None，也会正常返回 None。
+
+        第 3 点很重要，例如：
+
+            model:
+              base_url: null
+
+        此时：
+
+            config.get("model.base_url")
+
+        应该返回 None，而不是报错。
         """
 
         current: Any = self.data
 
         for part in key.split("."):
             if not isinstance(current, dict):
-                return default
+                raise ConfigError(f"配置路径无效：{key}")
 
             if part not in current:
-                return default
+                raise ConfigError(f"缺少配置项：{key}")
 
             current = current[part]
 
         return current
-
-    def require(self, key: str) -> Any:
-        """
-        按点号路径读取配置。
-
-        和 get() 的区别是：
-        如果配置不存在，会直接抛出异常。
-
-        适合读取必须存在的配置项。
-        """
-
-        value = self.get(key, default=None)
-
-        if value is None:
-            raise ConfigError(f"缺少必要配置项：{key}")
-
-        return value
-
-    def section(self, name: str) -> dict[str, Any]:
-        """
-        获取某个配置分区。
-
-        示例：
-            config.section("model")
-            config.section("tools")
-        """
-
-        value = self.data.get(name, {})
-
-        if not isinstance(value, dict):
-            raise ConfigError(f"配置分区必须是字典类型：{name}")
-
-        return value
-
-    def env(self, name: str, default: str | None = None) -> str | None:
-        """
-        读取环境变量。
-
-        例如：
-            config.env("OPENAI_API_KEY")
-        """
-
-        return os.getenv(name, default)
 
     def to_dict(self) -> dict[str, Any]:
         """
@@ -258,16 +237,16 @@ def get_config_summary(config: AppConfig) -> dict[str, Any]:
     返回配置摘要。
 
     注意：
-    这里不会打印真实 API Key。
+    这里不会打印真实 API Key，只会显示 API Key 是否已经读取成功。
     """
 
     api_key_env = config.get("model.api_key_env")
-    api_key_loaded = bool(os.getenv(api_key_env)) if api_key_env else False
+    api_key_loaded = bool(os.getenv(api_key_env))
 
     return {
-        "project": config.get("project", {}),
-        "agent": config.get("agent", {}),
-        "context": config.get("context", {}),
+        "project": config.get("project"),
+        "agent": config.get("agent"),
+        "context": config.get("context"),
         "model": {
             "provider": config.get("model.provider"),
             "model": config.get("model.model"),
@@ -281,6 +260,6 @@ def get_config_summary(config: AppConfig) -> dict[str, Any]:
             "allow_file_write": config.get("permission.allow_file_write"),
             "allow_bash": config.get("permission.allow_bash"),
         },
-        "tools": config.get("tools", {}),
-        "logging": config.get("logging", {}),
+        "tools": config.get("tools"),
+        "logging": config.get("logging"),
     }
